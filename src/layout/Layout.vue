@@ -6,6 +6,7 @@ import Sidebar from '@/components/Sidebar.vue'
 import { useMenuStore } from '@/stores/menu'
 import { CurrentUserInfo } from '@/http'
 import type { UserType } from '@/views/system/user/types'
+import Table from '@/components/Table.vue'
 
 const inverted = ref(false)
 const isFullScreen = ref(false)
@@ -62,16 +63,7 @@ const fullScreen = () => {
 
 <template>
   <n-layout has-sider style="height: 100vh">
-    <n-layout-sider
-      @update:collapsed="trigger"
-      show-trigger
-      collapse-mode="width"
-      :collapsed-width="64"
-      :width="240"
-      :native-scrollbar="false"
-      :inverted="inverted"
-      :bordered="siderBorder"
-    >
+    <n-layout-sider @update:collapsed="trigger" show-trigger collapse-mode="width" :collapsed-width="64" :width="240" :native-scrollbar="false" :inverted="inverted" :bordered="siderBorder">
       <Sidebar :activation="(route.meta.menuid as string)" :expanded="(route.meta.menuParentId as string) || ''" :collapsed="collapsed" />
     </n-layout-sider>
     <n-layout position="absolute">
@@ -79,13 +71,7 @@ const fullScreen = () => {
         <Header :isFullScreen="isFullScreen" @onFullScreen="fullScreen" :breadcrumbs="(route.meta.breadcrumb as string[])" :avatar="userInfo.avatar" />
       </n-layout-header>
       <n-layout-content ref="layoutContentRef" content-style="padding: 10px;" :native-scrollbar="false" position="absolute">
-        <router-view v-slot="{ Component }">
-          <transition name="fade-transform" mode="out-in">
-            <keep-alive include="sys_home,sys_user,sys_role,sys_menu">
-              <component :is="Component" />
-            </keep-alive>
-          </transition>
-        </router-view>
+        <Table />
       </n-layout-content>
     </n-layout>
   </n-layout>
@@ -98,12 +84,14 @@ const fullScreen = () => {
     flex-direction: column;
     left: v-bind('left');
     transition: all var(--n-bezier) 0.2s;
+
     .n-layout-header {
       height: 60px;
       padding: 10px;
       display: flex;
       align-items: center;
     }
+
     .n-layout-content {
       flex: 1;
       top: 60px;

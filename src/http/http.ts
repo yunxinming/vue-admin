@@ -8,7 +8,7 @@ const configProviderPropsRef = computed<ConfigProviderProps>(() => ({
   theme: themeRef.value === 'light' ? lightTheme : darkTheme,
 }))
 
-const { message } = createDiscreteApi(['message', 'dialog', 'notification', 'loadingBar'], {
+const { message, loadingBar } = createDiscreteApi(['message', 'dialog', 'notification', 'loadingBar'], {
   configProviderProps: configProviderPropsRef,
 })
 
@@ -17,6 +17,7 @@ export const Instance = Axios.create({
 })
 
 Instance.interceptors.request.use((request) => {
+  loadingBar.start()
   const token = window.localStorage.getItem('token')
   if (token && token !== '') {
     request.headers = {
@@ -28,8 +29,10 @@ Instance.interceptors.request.use((request) => {
 
 Instance.interceptors.response.use((response) => {
   if (response.data.code === 401) {
+    loadingBar.error()
     message.error('权限不足')
   }
+  loadingBar.finish()
   return response.data
 })
 

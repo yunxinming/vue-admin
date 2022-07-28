@@ -1,12 +1,11 @@
 <script setup lang="ts" name="sys_user">
-import {defineComponent, h, inject, onMounted, reactive, ref} from 'vue'
-import type {UserType, restPasswordType} from './types'
-import {UserList, SaveUsers, RemoveUsers, UserRoleAll, UpdateUsers, restPassword} from '@/http'
-import {NButton, NButtonGroup, NInput, useDialog, useMessage} from 'naive-ui'
-import type {VxeGridEvents, VxeGridInstance, VxeGridProps, VxeTablePropTypes} from 'vxe-table'
-import VXETable from 'vxe-table'
-import type {RoleType} from '../role/types'
-import usePerms from "@/hooks/usePerms";
+import { h, inject, onMounted, reactive, ref } from 'vue'
+import type { UserType, restPasswordType } from './types'
+import { UserList, SaveUsers, RemoveUsers, UserRoleAll, UpdateUsers, restPassword } from '@/http'
+import { NButton, NButtonGroup, NInput, useDialog, useMessage } from 'naive-ui'
+import type { VxeGridEvents, VxeGridInstance, VxeGridProps } from 'vxe-table'
+import type { RoleType } from '../role/types'
+import usePerms from '@/hooks/usePerms'
 
 const message = useMessage()
 const dialog = useDialog()
@@ -37,10 +36,10 @@ const gridOptions = reactive<VxeGridProps>({
     trigger: 'click',
     mode: 'row',
     showStatus: true,
-    beforeEditMethod({row}): boolean {
+    beforeEditMethod({ row }): boolean {
       const perms = usePerms()
       const isInsert = xGrid.value?.isInsertByRow(row) || false
-      const f = Array.of(...['system:user:add', 'system:user:edit']).every(p => perms.includes(p))
+      const f = Array.of(...['system:user:add', 'system:user:edit']).every((p) => perms.includes(p))
       if (f) {
         return true
       }
@@ -48,18 +47,18 @@ const gridOptions = reactive<VxeGridProps>({
         return true
       }
       return perms.includes('system:user:add') && isInsert
-    }
+    },
   },
   editRules: {
     userName: [
-      {required: true, message: '用户名必填'},
-      {min: 3, max: 50, message: '名称长度在 3 到 10 个字符'},
+      { required: true, message: '用户名必填' },
+      { min: 3, max: 50, message: '名称长度在 3 到 10 个字符' },
     ],
-    nickName: [{required: true, message: '用户昵称必须填写'}],
+    nickName: [{ required: true, message: '用户昵称必须填写' }],
   },
   customConfig: {
     storage: true,
-    checkMethod({column}) {
+    checkMethod({ column }) {
       if (['userName', 'roleIds', 'nickName'].includes(column.field)) {
         return false
       }
@@ -67,26 +66,26 @@ const gridOptions = reactive<VxeGridProps>({
     },
   },
   columns: [
-    {type: 'checkbox', title: 'ID', visible: true, width: 80},
+    { type: 'checkbox', title: 'ID', visible: true, width: 80 },
     {
       title: '用户名称',
       field: 'userName',
       editRender: {},
-      slots: {edit: 'edit_userName'},
+      slots: { edit: 'edit_userName' },
       visible: true,
       width: columnsWidth,
     },
     {
       title: '用户昵称',
       field: 'nickName',
-      editRender: {name: 'input', attrs: {placeholder: '请输入用户昵称'}},
+      editRender: { name: 'input', attrs: { placeholder: '请输入用户昵称' } },
       visible: true,
       width: columnsWidth,
     },
     {
       title: '用户角色',
       field: 'roleIds',
-      editRender: {name: '$select', options: [], props: {placeholder: '请选择角色', multiple: true}},
+      editRender: { name: '$select', options: [], props: { placeholder: '请选择角色', multiple: true } },
       width: columnsWidth,
     },
     {
@@ -98,19 +97,19 @@ const gridOptions = reactive<VxeGridProps>({
       editRender: {
         name: '$select',
         options: [
-          {label: '女', value: '1'},
-          {label: '男', value: '0'},
-          {label: '保密', value: '2'},
+          { label: '女', value: '1' },
+          { label: '男', value: '0' },
+          { label: '保密', value: '2' },
         ],
-        props: {placeholder: '请选择性别'},
+        props: { placeholder: '请选择性别' },
       },
       width: columnsWidth,
     },
-    {title: '用户邮箱', field: 'email', editRender: {name: 'input', attrs: {placeholder: '请输入用户邮箱'}}, width: columnsWidth},
+    { title: '用户邮箱', field: 'email', editRender: { name: 'input', attrs: { placeholder: '请输入用户邮箱' } }, width: columnsWidth },
     {
       title: '手机号码',
       field: 'phonenumber',
-      editRender: {name: 'input', attrs: {placeholder: '请输入手机号码'}},
+      editRender: { name: 'input', attrs: { placeholder: '请输入手机号码' } },
       width: columnsWidth,
     },
     {
@@ -119,14 +118,14 @@ const gridOptions = reactive<VxeGridProps>({
       editRender: {
         name: '$select',
         options: [
-          {label: '启用', value: '0'},
-          {label: '禁用', value: '1'},
+          { label: '启用', value: '0' },
+          { label: '禁用', value: '1' },
         ],
-        props: {placeholder: '请选择'},
+        props: { placeholder: '请选择' },
       },
       width: columnsWidth,
     },
-    {title: '用户备注', field: 'remark', editRender: {name: 'input', attrs: {placeholder: '请输入用户备注'}}, width: columnsWidth},
+    { title: '用户备注', field: 'remark', editRender: { name: 'input', attrs: { placeholder: '请输入用户备注' } }, width: columnsWidth },
   ],
   pagerConfig: {
     pageSize: 10,
@@ -134,12 +133,12 @@ const gridOptions = reactive<VxeGridProps>({
   },
   toolbarConfig: {
     buttons: [
-      {code: 'insert_actived', name: '新增'},
-      {code: 'delete', name: '删除'},
+      { code: 'insert_actived', name: '新增' },
+      { code: 'delete', name: '删除' },
       // { code: 'mark_cancel', name: '删除/取消' },
-      {code: 'save', name: '保存', status: 'success'},
+      { code: 'save', name: '保存', status: 'success' },
     ],
-    slots: {buttons: 'tool_btn'},
+    slots: { buttons: 'tool_btn' },
     refresh: true,
     import: false,
     export: false,
@@ -166,15 +165,15 @@ const gridOptions = reactive<VxeGridProps>({
     },
     message: false,
     ajax: {
-      query: ({page, sorts, filters, form}) => {
+      query: ({ page, sorts, filters, form }) => {
         const res = UserList(page.currentPage, page.pageSize)
-        const result = res({username: searchUserName.value})
-        result.then(({data}) => {
+        const result = res({ username: searchUserName.value })
+        result.then(({ data }) => {
           userList.value = data.records
         })
         return result
       },
-      save: ({body}) => {
+      save: ({ body }) => {
         let errorMessage = ''
         const UserNameText = userList.value?.map((u) => u?.userName)
         const insertData = body.insertRecords.map((u) => {
@@ -190,14 +189,14 @@ const gridOptions = reactive<VxeGridProps>({
           })
         }
         return insertData.length !== 0
-            ? SaveUsers([...insertData]).then(({code, msg}) => {
+          ? SaveUsers([...insertData]).then(({ code, msg }) => {
               if (code === 200) {
                 message.success(msg)
               } else {
                 message.error(msg)
               }
             })
-            : UpdateUsers([...body.updateRecords]).then(({code, msg}) => {
+          : UpdateUsers([...body.updateRecords]).then(({ code, msg }) => {
               if (code === 200) {
                 message.success(msg)
               } else {
@@ -205,11 +204,11 @@ const gridOptions = reactive<VxeGridProps>({
               }
             })
       },
-      delete: ({body}) => {
+      delete: ({ body }) => {
         if (body.removeRecords && body.removeRecords.length === 0) {
           return Promise.resolve()
         }
-        return RemoveUsers(body.removeRecords).then(({code, msg}) => {
+        return RemoveUsers(body.removeRecords).then(({ code, msg }) => {
           if (code === 200) {
             message.success(msg)
           } else {
@@ -225,7 +224,7 @@ const userList = ref<Partial<UserType[]>>()
 
 async function getUserList() {
   try {
-    const {code, msg, data} = await UserList(1, 10)()
+    const { code, msg, data } = await UserList(1, 10)()
     userList.value = data.records
   } catch (error) {
     message.error('未知错误，获取用户列表失败')
@@ -237,7 +236,7 @@ const editActivedEvent: VxeGridEvents.EditDisabled = (options) => {
 }
 const tableCheckboxConfig = reactive({
   labelField: 'userId',
-  checkMethod: ({row}: { row: UserType }) => {
+  checkMethod: ({ row }: { row: UserType }) => {
     return row.userId > 2
   },
   // visibleMethod({ row }: { row: any }) {
@@ -246,14 +245,14 @@ const tableCheckboxConfig = reactive({
 })
 
 async function getRoleAll() {
-  const {data} = await UserRoleAll()
+  const { data } = await UserRoleAll()
   roles.value = data
-  const {formConfig, columns} = gridOptions
+  const { formConfig, columns } = gridOptions
   if (columns) {
     const roleColumn = columns[3]
     const result: any[] = []
     data.forEach((r) => {
-      result.push({label: r.roleName, value: r.roleId?.toString()})
+      result.push({ label: r.roleName, value: r.roleId?.toString() })
     })
     if (roleColumn && roleColumn.editRender) {
       roleColumn.editRender.options = result
@@ -303,12 +302,12 @@ function handleKeyUp(e: KeyboardEvent) {
 function onPositiveClick(rowData: UserType[]) {
   if (repossessPasswordInput.value && repossessPasswordInput.value.length !== 0) {
     const result = rowData.map((u) => {
-      const res: restPasswordType = {userId: '', password: ''}
+      const res: restPasswordType = { userId: '', password: '' }
       res.userId = u.userId
       res.password = repossessPasswordInput.value
       return res
     })
-    restPassword(result).then(({code, msg}) => {
+    restPassword(result).then(({ code, msg }) => {
       if (code === 200) {
         message.success(msg)
         xGrid.value?.clearCheckboxRow()
@@ -335,22 +334,22 @@ function repossessPassword() {
     title: '重置密码',
     closable: false,
     content: () =>
-        h(
-            NInput,
-            {
-              type: 'password',
-              placeholder: '请输入密码',
-              onInput: (val: string) => (repossessPasswordInput.value = val),
-            },
-            {}
-        ),
+      h(
+        NInput,
+        {
+          type: 'password',
+          placeholder: '请输入密码',
+          onInput: (val: string) => (repossessPasswordInput.value = val),
+        },
+        {}
+      ),
     action: () =>
-        h(NButtonGroup, null, {
-          default: () => [
-            h(NButton, {type: 'info', onClick: onNegativeClick}, {default: () => '取消'}),
-            h(NButton, {type: 'warning', onClick: () => onPositiveClick(rowDate)}, {default: () => '确定'}),
-          ],
-        }),
+      h(NButtonGroup, null, {
+        default: () => [
+          h(NButton, { type: 'info', onClick: onNegativeClick }, { default: () => '取消' }),
+          h(NButton, { type: 'warning', onClick: () => onPositiveClick(rowDate) }, { default: () => '确定' }),
+        ],
+      }),
     negativeText: '不确定',
   })
 }
@@ -362,12 +361,11 @@ onMounted(() => {
 
 <template>
   <div class="user">
-    <vxe-grid ref="xGrid" :height="contentHeight - 20" auto-resize v-bind="gridOptions" @edit-actived="editActivedEvent"
-              :checkbox-config="tableCheckboxConfig">
+    <vxe-grid ref="xGrid" :height="contentHeight - 59" auto-resize v-bind="gridOptions" @edit-actived="editActivedEvent" :checkbox-config="tableCheckboxConfig">
       <template #tool_btn>
         <n-space>
           <n-input-group v-perms:system:user:query>
-            <n-input v-model:value="searchUserName" @keyup="handleKeyUp" placeholder="搜索用户名称"/>
+            <n-input v-model:value="searchUserName" @keyup="handleKeyUp" placeholder="搜索用户名称" />
             <n-button type="primary" ghost @click="query"> 搜索</n-button>
           </n-input-group>
           <n-button-group>

@@ -1,11 +1,11 @@
 <script setup lang="ts" name="sys_menu">
 import { useMessage, useDialog } from 'naive-ui'
-import { h, onMounted, reactive, ref, nextTick, onUpdated, defineProps, inject } from 'vue'
+import { onMounted, reactive, ref, onUpdated, inject } from 'vue'
 import type { VxeGridEvents, VxeGridInstance, VxeGridProps } from 'vxe-table'
 import { SaveMenus, UpdateMenus, RemoveMenus, MenuList } from '@/http'
 import { random } from 'xe-utils'
 import type { menuType } from './types'
-import usePerms from "@/hooks/usePerms";
+import usePerms from '@/hooks/usePerms'
 
 const message = useMessage()
 const dialog = useDialog()
@@ -24,14 +24,14 @@ const disabledMenu = reactive({
 })
 
 function verificationPerms() {
-  const f = Array.of(...['system:menu:edit','system:menu:add']).every(p => perms.includes(p))
+  const f = Array.of(...['system:menu:edit', 'system:menu:add']).every((p) => perms.includes(p))
   if (f) {
     return true
   }
   if (perms.includes('system:menu:edit')) {
     return false
   }
-  return true
+  return false
 }
 const GridOptions = reactive<VxeGridProps>({
   id: 'menu_table',
@@ -56,10 +56,10 @@ const GridOptions = reactive<VxeGridProps>({
     trigger: 'click',
     mode: 'row',
     showStatus: true,
-    beforeEditMethod({row}): boolean {
+    beforeEditMethod({ row }): boolean {
       const perms = usePerms()
       const isInsert = xGrid.value?.isInsertByRow(row) || false
-      const f = Array.of(...['system:menu:edit','system:menu:add']).every(p => perms.includes(p))
+      const f = Array.of(...['system:menu:edit', 'system:menu:add']).every((p) => perms.includes(p))
       if (f) {
         return true
       }
@@ -67,7 +67,7 @@ const GridOptions = reactive<VxeGridProps>({
         return true
       }
       return perms.includes('system:menu:add') && isInsert
-    }
+    },
   },
   customConfig: {
     checkMethod({ column }): boolean {
@@ -75,7 +75,7 @@ const GridOptions = reactive<VxeGridProps>({
         return verificationPerms()
       }
       return true
-    }
+    },
   },
   toolbarConfig: {
     slots: { buttons: 'tool_btn' },
@@ -118,7 +118,7 @@ const GridOptions = reactive<VxeGridProps>({
       width: '20%',
     },
     { field: 'remark', title: '菜单备注', editRender: {}, slots: { edit: 'edit_remark' }, width: '20%' },
-    { field: "createBy", title: '菜单操作', fixed: 'right', slots: { default: 'operate' }, width: 104, visible: verificationPerms() },
+    { field: 'createBy', title: '菜单操作', fixed: 'right', slots: { default: 'operate' }, width: 104, visible: verificationPerms() },
   ],
   proxyConfig: {
     seq: true,
@@ -248,23 +248,19 @@ function generateMenuID(start: number = 1000): number {
   return v
 }
 
-onMounted(() => {
+onMounted(() => {})
 
-})
-
-onUpdated(() => {
-
-})
+onUpdated(() => {})
 </script>
 
 <template>
   <div class="menu">
-    <vxe-grid ref="xGrid" :height="height - 20" v-bind="GridOptions" auto-resize @edit-actived="editActivedEvent">
+    <vxe-grid ref="xGrid" :height="height - 59" v-bind="GridOptions" auto-resize @edit-actived="editActivedEvent">
       <template #tool_btn="{ row }">
         <n-button-group>
           <n-button type="info" @click="insertEvent(row)" v-perms:system:menu:add>新增</n-button>
-          <n-button type="warning" @click="removeRows" v-perms:system:menu:remove>删除</n-button>
-          <n-button type="success" @click="saveRows" v-perms="['system:menu:edit','system:menu:add']">保存</n-button>
+          <n-button type="error" @click="removeRows" v-perms:system:menu:remove>删除</n-button>
+          <n-button type="success" @click="saveRows" v-perms="['system:menu:edit', 'system:menu:add']">保存</n-button>
         </n-button-group>
       </template>
       <template #status_default="{ row }">
@@ -301,7 +297,7 @@ onUpdated(() => {
       </template>
       <template #operate="{ row }">
         <n-space v-if="row.menuType !== 'F'">
-          <NButton :type="row.menuType === 'M' ? 'primary' : 'info'" @click="insertChildRow(row, row.menuType)">
+          <NButton :type="row.menuType === 'M' ? 'info' : 'primary'" @click="insertChildRow(row, row.menuType)">
             {{ row.menuType === 'M' ? '添加菜单' : '添加按钮' }}
           </NButton>
         </n-space>

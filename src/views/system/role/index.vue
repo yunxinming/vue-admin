@@ -1,22 +1,13 @@
 <script lang="ts" setup name="sys_role">
-import type {VxeGridInstance, VxeGridProps} from 'vxe-table'
-import {inject, onMounted, reactive, ref} from 'vue'
-import {
-  EditRoles,
-  RoleList,
-  SaveRoles,
-  DeleteRoles,
-  RoleMenus,
-  getChecked,
-  updateRoleMenus,
-  deleteRoleMenus
-} from '@/http'
-import {useMessage, useDialog} from 'naive-ui'
-import type {TreeOption} from 'naive-ui'
-import type {menuType} from '@/views/system/menu/types'
-import {useMenuStore} from '@/stores/menu'
-import type {RoleType} from '@/views/system/role/types'
-import usePerms from "@/hooks/usePerms";
+import type { VxeGridInstance, VxeGridProps } from 'vxe-table'
+import { inject, onMounted, reactive, ref } from 'vue'
+import { EditRoles, RoleList, SaveRoles, DeleteRoles, RoleMenus, getChecked, updateRoleMenus, deleteRoleMenus } from '@/http'
+import { useMessage, useDialog } from 'naive-ui'
+import type { TreeOption } from 'naive-ui'
+import type { menuType } from '@/views/system/menu/types'
+import { useMenuStore } from '@/stores/menu'
+import type { RoleType } from '@/views/system/role/types'
+import usePerms from '@/hooks/usePerms'
 
 const xGrid = ref<VxeGridInstance>()
 const message = useMessage()
@@ -49,9 +40,9 @@ const GridOptions = reactive<VxeGridProps>({
     trigger: 'click',
     mode: 'row',
     showStatus: true,
-    beforeEditMethod: function ({row}): boolean {
+    beforeEditMethod: function ({ row }): boolean {
       const isInsert = xGrid.value?.isInsertByRow(row) || false
-      const f = Array.of(...['system:role:edit', 'system:role:add']).every(p => perms.includes(p))
+      const f = Array.of(...['system:role:edit', 'system:role:add']).every((p) => perms.includes(p))
       if (f) {
         return true
       }
@@ -59,57 +50,57 @@ const GridOptions = reactive<VxeGridProps>({
         return true
       }
       return perms.includes('system:role:add') && isInsert
-    }
+    },
   },
   pagerConfig: {
     pageSize: 10,
     pageSizes: [10, 15, 20, 50, 100],
   },
   editRules: {
-    roleName: [{required: true, message: '角色名称必填'}],
-    roleKey: [{required: true, message: '角色标识必填'}],
+    roleName: [{ required: true, message: '角色名称必填' }],
+    roleKey: [{ required: true, message: '角色标识必填' }],
     roleSort: [
-      {required: true, message: '角色排序必填'},
-      {pattern: '^[0-9]{0,8}$', message: '格式不对，请输入数字'},
+      { required: true, message: '角色排序必填' },
+      { pattern: '^[0-9]{0,8}$', message: '格式不对，请输入数字' },
     ],
-    status: [{required: true, message: '角色状态必填'}],
+    status: [{ required: true, message: '角色状态必填' }],
   },
   expandConfig: {
     accordion: true,
     lazy: true,
-    loadMethod: async ({row}) => {
+    loadMethod: async ({ row }) => {
       cacheChecked[row.roleId] = []
       const data = await getRoleMenus()
       menus.value = data
       const checked = getChecked(row.roleId)
-      const {code, msg, data: check} = await checked()
+      const { code, msg, data: check } = await checked()
       handleCheckedChildNode(data, check, row.roleId)
     },
   },
   columns: [
-    {type: 'checkbox'},
-    {type: 'expand', slots: {content: 'expand'}},
-    {title: '角色名称', field: 'roleName', editRender: {}, slots: {edit: 'edit_roleName'}, width: fieldWidth},
-    {title: '角色标识', field: 'roleKey', editRender: {}, slots: {edit: 'edit_roleKey'}, width: fieldWidth},
+    { type: 'checkbox' },
+    { type: 'expand', slots: { content: 'expand' } },
+    { title: '角色名称', field: 'roleName', editRender: {}, slots: { edit: 'edit_roleName' }, width: fieldWidth },
+    { title: '角色标识', field: 'roleKey', editRender: {}, slots: { edit: 'edit_roleKey' }, width: fieldWidth },
     {
       title: '角色排序',
       field: 'roleSort',
       sortable: true,
       editRender: {},
-      slots: {edit: 'edit_roleSort'},
+      slots: { edit: 'edit_roleSort' },
       width: fieldWidth,
     },
     {
       title: '角色状态',
       field: 'status',
       editRender: {},
-      slots: {edit: 'edit_status', default: 'default_status'},
+      slots: { edit: 'edit_status', default: 'default_status' },
       width: fieldWidth,
     },
-    {title: '角色备注', field: 'remark', editRender: {}, slots: {edit: 'edit_remark'}, width: fieldWidth},
+    { title: '角色备注', field: 'remark', editRender: {}, slots: { edit: 'edit_remark' }, width: fieldWidth },
   ],
   toolbarConfig: {
-    slots: {buttons: 'toolbar_btn'},
+    slots: { buttons: 'toolbar_btn' },
     refresh: true,
     import: false,
     export: false,
@@ -128,29 +119,29 @@ const GridOptions = reactive<VxeGridProps>({
       total: 'total', // 配置响应结果总页数字段
     },
     ajax: {
-      query: async ({page, sorts, filters, form}) => {
-        const result = RoleList({currentPage: page.currentPage, pageSize: page.pageSize})
-        const {code, msg, data} = await result()
+      query: async ({ page, sorts, filters, form }) => {
+        const result = RoleList({ currentPage: page.currentPage, pageSize: page.pageSize })
+        const { code, msg, data } = await result()
         if (code !== 200) {
           message.error(msg)
         }
         return data
       },
-      delete: async ({body}) => {
-        const {code, msg} = await DeleteRoles(body.removeRecords)
+      delete: async ({ body }) => {
+        const { code, msg } = await DeleteRoles(body.removeRecords)
         if (code === 200) {
           message.success(msg)
         } else {
           message.error(msg)
         }
       },
-      save: async ({body}) => {
+      save: async ({ body }) => {
         if (body.insertRecords && body.insertRecords.length !== 0) {
-          const {code, msg} = await SaveRoles(
-              body.insertRecords.map((r) => {
-                r.roleId = null
-                return r
-              })
+          const { code, msg } = await SaveRoles(
+            body.insertRecords.map((r) => {
+              r.roleId = null
+              return r
+            })
           )
           if (code === 200) {
             message.success(msg)
@@ -159,7 +150,7 @@ const GridOptions = reactive<VxeGridProps>({
           }
         }
         if (body.updateRecords && body.updateRecords.length !== 0) {
-          const {code, msg} = await EditRoles(body.updateRecords)
+          const { code, msg } = await EditRoles(body.updateRecords)
           if (code === 200) {
             message.success(msg)
           } else {
@@ -171,9 +162,9 @@ const GridOptions = reactive<VxeGridProps>({
   },
 })
 
-function verifyPermissions(row: any){
+function verifyPermissions(row: any) {
   const isInsert = xGrid.value?.isInsertByRow(row) || false
-  const f = Array.of(...['system:role:edit', 'system:role:add']).every(p => perms.includes(p))
+  const f = Array.of(...['system:role:edit', 'system:role:add']).every((p) => perms.includes(p))
   if (f) {
     return true
   }
@@ -199,7 +190,7 @@ function save() {
     result.push(...cacheUpdateChecked[k].merge)
     notProcessedChecked[key].forEach((n) => {
       if (![...cacheUpdateChecked[key].checked, ...cacheUpdateChecked[key].indeterminate].includes(n)) {
-        removeResult.push({roleId: k, menuId: n})
+        removeResult.push({ roleId: k, menuId: n })
       }
     })
   }
@@ -208,7 +199,7 @@ function save() {
     return message.info('没有数据更改')
   }
   if (removeResult.length !== 0) {
-    deleteRoleMenus(removeResult).then(({code, msg}) => {
+    deleteRoleMenus(removeResult).then(({ code, msg }) => {
       if (code === 200) {
         message.success(msg)
         removeResult.forEach((res) => {
@@ -223,7 +214,7 @@ function save() {
     })
   }
   if (result.length !== 0) {
-    updateRoleMenus(result).then(({code, msg}) => {
+    updateRoleMenus(result).then(({ code, msg }) => {
       if (code === 200) {
         message.success(msg)
         result.forEach((res) => {
@@ -276,7 +267,7 @@ function handleCheckedChildNode(menus: menuType[], keys: number[], roleId: numbe
 
 async function getRoleMenus() {
   if (menus.value && menus.value?.length !== 0) return menus.value
-  const {code, msg, data} = await RoleMenus()
+  const { code, msg, data } = await RoleMenus()
   if (code !== 200) {
     message.error(msg)
   }
@@ -306,24 +297,24 @@ function generateMenuTree(data: menuType[]) {
 }
 
 function updateCheckedKeys(keys: Array<number>, option: Array<TreeOption | null>, row: RoleType) {
-  cacheUpdateChecked[row.roleId] = {checked: keys, indeterminate: [], merge: []}
+  cacheUpdateChecked[row.roleId] = { checked: keys, indeterminate: [], merge: [] }
 }
 
 function updateIndeterminateKey(keys: Array<number>, option: Array<TreeOption | null>, row: RoleType) {
   cacheUpdateChecked[row.roleId].indeterminate = keys
   cacheUpdateChecked[row.roleId].merge = [...cacheUpdateChecked[row.roleId].checked, ...cacheUpdateChecked[row.roleId].indeterminate].map((n) => {
-    return {roleId: row.roleId, menuId: n}
+    return { roleId: row.roleId, menuId: n }
   })
 }
 </script>
 
 <template>
   <div class="role">
-    <vxe-grid ref="xGrid" :height="height - 20" auto-resize v-bind="GridOptions">
+    <vxe-grid ref="xGrid" :height="height - 59" auto-resize v-bind="GridOptions">
       <template #toolbar_btn>
         <n-button-group>
           <n-button type="info" @click="insert" v-perms:system:role:add>新增</n-button>
-          <n-button type="warning" @click="deleteRoleRow" v-perms:system:role:remove>删除</n-button>
+          <n-button type="error" @click="deleteRoleRow" v-perms:system:role:remove>删除</n-button>
           <n-button type="success" @click="save" v-perms="['system:role:edit', 'system:role:add']">保存</n-button>
         </n-button-group>
       </template>
@@ -334,33 +325,33 @@ function updateIndeterminateKey(keys: Array<number>, option: Array<TreeOption | 
         <n-input v-model:value="row.roleKey" placeholder="角色标识"></n-input>
       </template>
       <template #edit_roleSort="{ row }">
-        <n-input-number v-model:value="row.roleSort" clearable placeholder="角色排序"/>
+        <n-input-number v-model:value="row.roleSort" clearable placeholder="角色排序" />
       </template>
       <template #edit_status="{ row }">
-        <n-switch v-model:value="row.status" checked-value="0" unchecked-value="1"/>
+        <n-switch v-model:value="row.status" checked-value="0" unchecked-value="1" />
       </template>
       <template #default_status="{ row }">
-        <n-switch v-model:value="row.status" :disabled="!verifyPermissions(row)" checked-value="0" unchecked-value="1"/>
+        <n-switch v-model:value="row.status" :disabled="!verifyPermissions(row)" checked-value="0" unchecked-value="1" />
       </template>
       <template #edit_remark="{ row }">
         <n-input v-model:value="row.remark" placeholder="角色备注"></n-input>
       </template>
       <template #expand="{ row }">
         <n-tree
-            block-line
-            checkable
-            cascade
-            :data="menus"
-            :disabled="!verifyPermissions(row)"
-            key-field="menuId"
-            label-field="menuName"
-            :default-checked-keys="cacheUpdateChecked[row.roleId] ? cacheUpdateChecked[row.roleId].checked : cacheChecked[row.roleId]"
-            @update:checked-keys="
+          block-line
+          checkable
+          cascade
+          :data="menus as []"
+          :disabled="!verifyPermissions(row)"
+          key-field="menuId"
+          label-field="menuName"
+          :default-checked-keys="cacheUpdateChecked[row.roleId] ? cacheUpdateChecked[row.roleId].checked : cacheChecked[row.roleId]"
+          @update:checked-keys="
             (keys, option) => {
               updateCheckedKeys(keys, option, row)
             }
           "
-            @update:indeterminate-keys="
+          @update:indeterminate-keys="
             (key, option) => {
               updateIndeterminateKey(key, option, row)
             }

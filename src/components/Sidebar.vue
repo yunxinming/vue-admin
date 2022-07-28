@@ -14,6 +14,8 @@ import {
   HomeRound,
   MapsHomeWorkRound,
   SettingsApplicationsSharp,
+  PeopleSharp,
+  AccountTreeSharp
 } from '@vicons/material'
 import useAddRouter from '@/hooks/useAddRouter'
 
@@ -23,8 +25,8 @@ const iconResult = {
   monitor: MonitorHeartFilled,
   tool: CatchingPokemonTwotone,
   user: SupervisedUserCircleRound,
-  peoples: AccountCircleRound,
-  'tree-table': AccountCircleRound,
+  peoples: PeopleSharp,
+  'tree-table': AccountTreeSharp,
   tree: AccountCircleRound,
   post: AccountCircleRound,
   dict: AccountCircleRound,
@@ -65,7 +67,7 @@ function renderIcon(icon: Component) {
 }
 function handleRouter(router: menuType[]) {
   return router.map((m) => {
-    m.key = m.menuId.toString()
+    m.key = m.menuId?.toString()
     m.label = handleMenuLabel(m)
     m.icon = iconResult[m.icon as keyof typeof iconResult] ? renderIcon(iconResult[m.icon as keyof typeof iconResult]) : renderIcon(InsertLinkSharp)
     if (m.children?.length !== 0) {
@@ -117,16 +119,7 @@ function expandIcon(option: MenuOption) {
 </script>
 
 <template>
-  <n-menu
-    :collapsed="props.collapsed"
-    :collapsed-width="64"
-    :value="props.activation"
-    :default-value="props.activation"
-    :default-expanded-keys="[props.expanded]"
-    :collapsed-icon-size="22"
-    :options="menuOptions"
-    :indent="22"
-    :icon-size="22"
-    :expand-icon="expandIcon"
-  />
+  <n-menu :collapsed="props.collapsed" :collapsed-width="64" :value="props.activation" :default-value="props.activation"
+    :default-expanded-keys="[props.expanded]" :collapsed-icon-size="22" :options="menuOptions" :indent="22"
+    :icon-size="22" :expand-icon="expandIcon" />
 </template>

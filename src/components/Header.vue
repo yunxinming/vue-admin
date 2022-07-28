@@ -3,7 +3,7 @@ import { AccountCircleRound, ZoomOutMapFilled, ZoomInMapFilled } from '@vicons/m
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Logout } from '@/http'
-import {useMenuStore} from "@/stores/menu";
+import { useMenuStore } from '@/stores/menu'
 
 const props = defineProps<{ breadcrumbs: string[]; avatar?: string; isFullScreen: boolean }>()
 const router = useRouter()
@@ -36,8 +36,13 @@ function handleSelect(key: string) {
 <template>
   <header>
     <n-breadcrumb>
-      <n-breadcrumb-item v-for="(title, index) in props.breadcrumbs" :key="index">{{ title }}</n-breadcrumb-item>
+      <transition-group name="fade-transform">
+        <n-breadcrumb-item v-for="(title, index) in props.breadcrumbs" :key="index">
+          {{ title }}
+        </n-breadcrumb-item>
+      </transition-group>
     </n-breadcrumb>
+
     <div class="right">
       <n-space>
         <div class="util" @click="$emit('onFullScreen')">
